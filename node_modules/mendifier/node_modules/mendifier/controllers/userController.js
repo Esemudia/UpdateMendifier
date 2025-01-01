@@ -7,7 +7,7 @@ exports.signUp = async (req, res) => {
     try {
         const { name, phone, password, email } = req.body;
 
-        console.log(name,phone,password,emai)
+        console.log(req.body)
         const existingUser = await User.findOne({ phone });
         if (existingUser) {
             return res.status(400).json({ error: 'Phone number already in use' });
