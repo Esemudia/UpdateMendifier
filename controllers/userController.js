@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const twilio = require('twilio');
 
-const twilioClient = twilio("AC04bd7aae1f82d8a5dc384e24b6ac04de", "c198a31680ae36e0f9af29cf170a5a79");
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
  //Otp generation
 exports.sendOtp = async (req, res) => {
     try {
@@ -11,12 +11,12 @@ exports.sendOtp = async (req, res) => {
 
         // Check if user exists
         const user = await User.findOne({ phone });
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+        if (user) {
+            return res.status(404).json({ error: 'User  Exist' });
         }
 
         // Generate OTP
-        const otp = crypto.randomInt(100000, 999999).toString();
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
         // Send OTP via Twilio WhatsApp
         const message = await twilioClient.messages.create({
