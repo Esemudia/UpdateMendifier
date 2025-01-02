@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     isVerified: { type: Boolean, default: false },
     wallet: { type: Number, default: 0 },
+    otp: String,
+    otpExpires: Date,
     referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     notifications: [{ message: String, date: { type: Date, default: Date.now } }],
     createdAt: { type: Date, default: Date.now },

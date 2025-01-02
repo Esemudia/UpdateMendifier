@@ -20,7 +20,8 @@
     "mendifier": "file:",
     "mongoose": "^8.9.3",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
+    "passport-google-oauth20": "^2.0.0",
+    "twilio": "^5.4.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

@@ -1,6 +1,43 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const twilio = require('twilio');
+
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+ //Otp generation
+exports.sendOtp = async (req, res) => {
+    try {
+        const { phone } = req.body;
+
+        // Check if user exists
+        const user = await User.findOne({ phone });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Generate OTP
+        const otp = crypto.randomInt(100000, 999999).toString();
+
+        // Send OTP via Twilio WhatsApp
+        const message = await twilioClient.messages.create({
+            from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+            to: `whatsapp:${phone}`,
+            body: `Your verification code is ${otp}`
+        });
+
+        console.log('Twilio response:', message.sid);
+
+        // Update MongoDB with OTP and timestamp
+        user.otp = otp;
+        user.otpExpires = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+        await user.save();
+
+        res.status(200).json({ message: 'OTP sent successfully', userId: user._id });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error sending OTP' });
+    }
+};
 
 // Sign-up
 exports.signUp = async (req, res) => {
@@ -84,3 +121,29 @@ exports.verifyUser = async (req, res) => {
         res.status(500).json({ error: 'Error verifying user' });
     }
 };
+ // verify otp
+exports.verifyOtp = async (req, res) => {
+    try {
+        const { userId, otp } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (user.otp !== otp || Date.now() > user.otpExpires) {
+            return res.status(400).json({ error: 'Invalid or expired OTP' });
+        }
+
+        user.isVerified = true;
+        user.otp = undefined;
+        user.otpExpires = undefined;
+        await user.save();
+
+        res.status(200).json({ message: 'User verified successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error verifying OTP' });
+    }
+};
+
