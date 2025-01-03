@@ -152,6 +152,7 @@ exports.verifyOtp = async (req, res) => {
         }
 
         // Mark the user as verified and clear OTP
+      
         user.isVerified = true;
         user.otp = undefined;
         user.otpExpires = undefined;
