@@ -2,8 +2,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const twilio = require('twilio');
+const number="+14155238886"
 
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const twilioClient = twilio('AC04bd7aae1f82d8a5dc384e24b6ac04de', 'b55bb9e4354dd3e0386c00984f97a202');
  //Otp generation
 exports.sendOtp = async (req, res) => {
     try {
@@ -27,9 +28,9 @@ exports.sendOtp = async (req, res) => {
 
         // Send OTP via Twilio
         await twilioClient.messages.create({
-            from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
+            from: `whatsapp:${number}`,
             to: `whatsapp:${phone}`,
-            body: `Your verification code is ${otp}`
+            body: `${otp} is your verification code. For your security, do not share this code.`
         });
 
         res.status(200).json({ message: 'OTP sent successfully', userId: user._id });
