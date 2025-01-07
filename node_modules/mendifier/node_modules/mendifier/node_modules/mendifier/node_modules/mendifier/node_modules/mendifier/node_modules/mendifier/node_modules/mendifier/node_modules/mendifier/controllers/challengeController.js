@@ -4,7 +4,7 @@ const User = require('../models/User');
 // Create a challenge
 exports.createChallenge = async (req, res) => {
     try {
-        const { title, description, prize, referralsRequired, startDate, endDate } = req.body;
+        const { title, description, prize, referralsRequired, startDate, endDate,adminId } = req.body;
         const challenge = new Challenge({
             title,
             description,
@@ -12,7 +12,7 @@ exports.createChallenge = async (req, res) => {
             referralsRequired,
             startDate,
             endDate,
-            postedBy: req.user.id, // Assuming JWT auth middleware sets `req.user`
+            postedBy: adminId,
         });
         await challenge.save();
         res.status(201).json({ message: 'Challenge created successfully', challenge });
