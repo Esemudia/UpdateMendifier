@@ -7,7 +7,7 @@ const challengeSchema = new mongoose.Schema({
     referralsRequired: { type: Number, required: true }, // Minimum referrals to win the prize
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
-    postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin', required: true },
     participants: [
         {
             user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

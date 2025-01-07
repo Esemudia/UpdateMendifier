@@ -34,11 +34,10 @@ mongoose.connection.on('disconnected', () => {
     console.log('MongoDB disconnected');
 });
 
-// Call the connection function
 connectToDatabase();
 
 // Routes
-app.use('/admin',require)
+app.use('/admin',require('./routes/adminRoutes'));
 app.use('/auth', require('./routes/authRoutes'));
 app.use('/user', require('./routes/userRoutes'));
 app.use('/services', require('./routes/serviceRoutes'));

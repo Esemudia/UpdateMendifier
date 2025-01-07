@@ -1,13 +1,13 @@
-const User = require('../models/Admin');
+const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
+const User = require('../models/User');
 
 exports.signUp = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-        const user = new Admin({ name, email, password });
+        const { name, email, password,phone } = req.body;
+        const user = new Admin({ name, email, password,phone });
         await user.save();
-        res.status(201).json({ message: 'User registered successfully' });
+        res.status(201).json({ message: 'Admin registered successfully' });
     } catch (error) {
         res.status(400).json({ message: 'Error signing up', error });
     }
@@ -16,7 +16,7 @@ exports.signUp = async (req, res) => {
 exports.signIn = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email });
+        const user = await Admin.findOne({ email });
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const isMatch = await bcrypt.compare(password, user.password);

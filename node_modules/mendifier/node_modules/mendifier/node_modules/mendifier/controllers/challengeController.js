@@ -12,11 +12,12 @@ exports.createChallenge = async (req, res) => {
             referralsRequired,
             startDate,
             endDate,
-            postedBy: adminId,
+            postedBy:adminId,
         });
         await challenge.save();
         res.status(201).json({ message: 'Challenge created successfully', challenge });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Error creating challenge', error });
     }
 };
