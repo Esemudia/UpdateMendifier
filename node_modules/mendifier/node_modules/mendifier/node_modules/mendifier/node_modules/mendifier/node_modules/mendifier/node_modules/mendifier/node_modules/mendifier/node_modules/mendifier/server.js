@@ -38,14 +38,17 @@ mongoose.connection.on('disconnected', () => {
 connectToDatabase();
 
 // Routes
+app.use('/admin',require)
 app.use('/auth', require('./routes/authRoutes'));
 app.use('/user', require('./routes/userRoutes'));
 app.use('/services', require('./routes/serviceRoutes'));
 app.use('/wallet', require('./routes/walletRoutes'));
-app.use('/referrals', require('./routes/referralRoutes'));
+app.use('/referralChallenge', require('./routes/challengeRoutes'));
 app.use('/notifications', require('./routes/notificationRoutes'));
 app.use('/transactions', require('./routes/transactionRoutes'));
 app.use('/community', require('./routes/communityRoutes'));
+app.use('/product', require('./routes/productRoutes'));
+app.use('/subService',require('./routes/subservice'));
 
 
 // Start Server

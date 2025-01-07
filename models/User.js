@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     wallet: { type: Number, default: 0 },
     otp: String,
     otpExpires: Date,
+    role: {  type: String, enum: ['user', 'serviceProvider'], default: 'user' },
     referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     notifications: [{ message: String, date: { type: Date, default: Date.now } }],
     createdAt: { type: Date, default: Date.now },
