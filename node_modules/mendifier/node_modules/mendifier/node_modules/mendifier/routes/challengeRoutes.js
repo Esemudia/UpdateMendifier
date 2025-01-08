@@ -11,7 +11,7 @@ const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
 
 router.post('/', createChallenge); // Admins post challenge
-router.post('/join/:challengeId', joinChallenge); // Users join challenge
+router.post('/join', joinChallenge); // Users join challenge
 router.post('/referral', handleReferral); // Record referral
 router.get('/leaderboard/:challengeId', getLeaderboard); // View leaderboard
 

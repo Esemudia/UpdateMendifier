@@ -8,7 +8,7 @@ const Adminschema= new mongoose.Schema({
     phone: { type: String, unique: true, required: true },
     password: { type: String, required: false },
     createdAt: { type: Date, default: Date.now },
-    role: {  type: String, enum: ['suoerAdmin', 'Admin'], default: 'Admin' },
+    role: {  type: String, enum: ['superAdmin', 'Admin'], default: 'Admin' },
 })
 
 

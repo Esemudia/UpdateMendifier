@@ -44,7 +44,7 @@ exports.sendOtp = async (req, res) => {
 // Sign-up
 exports.signUp = async (req, res) => {
     try {
-        const { userId, name, email, password } = req.body;
+        const { userId, name, email, password, type } = req.body;
 
         // Find the user by ID
         const user = await User.findById(userId);
@@ -64,6 +64,7 @@ exports.signUp = async (req, res) => {
         user.name = name;
         user.email = email;
         user.password = hashedPassword;
+        user.type= type
 
         await user.save();
 
