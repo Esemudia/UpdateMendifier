@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Transaction = require('../models/Transaction');
 
 exports.topUpWallet = async (req, res) => {
     try {
@@ -23,11 +24,11 @@ exports.topUpWallet = async (req, res) => {
 };
 
 exports.tranfer=async (req, res) => {
-    const { recipientEmail, amount } = req.body;
+    const { recipientEmail, amount,senderId } = req.body;
     try {
       if (amount <= 0) return res.status(400).send({ message: 'Invalid amount' });
   
-      const sender = await User.findById(req.user.id);
+      const sender = await User.findById(senderId);
       if (sender.walletBalance < amount) return res.status(400).send({ message: 'Insufficient balance' });
   
       const recipient = await User.findOne({ email: recipientEmail });
@@ -57,6 +58,7 @@ exports.tranfer=async (req, res) => {
   
       res.status(200).send({ message: 'Transfer successful' });
     } catch (error) {
+        console.log(error)
       res.status(400).send({ message: error.message });
     }
   };
