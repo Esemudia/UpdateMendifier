@@ -16,6 +16,7 @@
     "body-parser": "^1.20.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "geoip-lite": "^1.4.10",
     "jsonwebtoken": "^9.0.2",
     "mendifier": "file:",
     "mongoose": "^8.9.3",

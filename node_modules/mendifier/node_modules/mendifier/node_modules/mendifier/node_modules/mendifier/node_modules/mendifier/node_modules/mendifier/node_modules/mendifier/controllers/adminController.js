@@ -2,6 +2,12 @@ const Admin = require('../models/Admin');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const Post= require('../models/post')
+const Blacklist = require('../models/blacklist')
+const Mail= require('../models/post')
+const nodemailer = require('nodemailer');
+const Approval= require('../models/approveserviceprovider');
+const EmailLog = require('../models/EmailLog');
 
 exports.signUp = async (req, res) => {
     try {
@@ -72,3 +78,191 @@ exports.getUserById = async (req, res) => {
         res.status(500).json({ message: 'Error fetching user', error });
     }
 };
+
+exports.reviewPost = async (req, res) => {
+    try {
+        const { postId, status } = req.body;
+
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: 'Post not found' });
+        }
+
+        post.status = status;
+        await post.save();
+
+        res.status(200).json({ message: `Post ${status} successfully` });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error reviewing post' });
+    }
+};
+
+exports.kyc= async (req, res) => {
+    const { userId, status } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+
+    user.kyc.status = status;
+    await user.save();
+
+    res.status(200).json({ message: 'KYC updated successfully', user });
+};
+
+
+exports.isBlacklist =  async (req, res) => {
+    const { country } = req.body; 
+    try {
+      let blacklist = await Blacklist.findOne();
+      if (!blacklist) {
+        blacklist = new Blacklist();
+      }
+      if (!blacklist.countries.includes(country)) {
+        blacklist.countries.push(country);
+        await blacklist.save();
+        res.status(200).json({ message: `Country ${country} added to blacklist.` });
+      } else {
+        res.status(400).json({ message: `Country ${country} is already blacklisted.` });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Error adding country to blacklist', error });
+    }
+  };
+
+
+exports.approveServiceProvider = async (req, res) => {
+    const { providerId, approved } = req.body;
+
+    const provider = await Approval.findById(providerId);
+    if (!provider) {
+        return res.status(404).json({ error: 'Service provider not found' });
+    }
+
+    provider.approved = approved;
+    await provider.save();
+
+    res.status(200).json({ message: 'Service provider updated successfully', provider });
+};
+
+exports.sendNoreplyEmail = async (req, res) => {
+    try {
+        const { to, subject, body } = req.body;
+        await sendEmail(to, subject, body);
+        const emailLog = new EmailLog({
+            to,
+            subject,
+            body,
+            status: 'success'
+        });
+        await emailLog.save();
+
+        res.status(200).json({ message: 'Email sent successfully', emailLog });
+    } catch (error) {
+        console.error('Error sending email:', error);
+        const emailLog = new EmailLog({
+            to: req.body.to,
+            subject: req.body.subject,
+            body: req.body.body,
+            status: 'failure',
+            error: error.message
+        });
+        await emailLog.save();
+
+        res.status(500).json({ error: 'Error sending email', emailLog });
+    }
+};
+
+exports.sendEmailToUser = async (req, res) => {
+    try {
+        const { userId, subject, body } = req.body;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        await sendEmail(user.email, subject, body);
+        const emailLog = new EmailLog({
+            to: user.email,
+            subject,
+            body,
+            status: 'success'
+        });
+        await emailLog.save();
+
+        res.status(200).json({ message: 'Email sent successfully to user', emailLog });
+    } catch (error) {
+        console.error('Error sending email:', error);
+        const emailLog = new EmailLog({
+            to: req.body.email,
+            subject: req.body.subject,
+            body: req.body.body,
+            status: 'failure',
+            error: error.message
+        });
+        await emailLog.save();
+
+        res.status(500).json({ error: 'Error sending email to user', emailLog });
+    }
+};
+
+
+exports.sendEmailToAllUsers = async (req, res) => {
+    try {
+        const { subject, body } = req.body;
+        const users = await User.find({}, 'email'); 
+        const emailPromises = users.map(async (user) => {
+            try {
+                await sendEmail(user.email, subject, body);
+                await new EmailLog({
+                    to: user.email,
+                    subject,
+                    body,
+                    status: 'success'
+                }).save();
+            } catch (error) {
+                console.error(`Failed to send email to ${user.email}:`, error);
+                await new EmailLog({
+                    to: user.email,
+                    subject,
+                    body,
+                    status: 'failure',
+                    error: error.message
+                }).save();
+            }
+        });
+        await Promise.all(emailPromises);
+
+        res.status(200).json({ message: 'Emails sent to all users' });
+    } catch (error) {
+        console.error('Error sending emails to all users:', error);
+        res.status(500).json({ error: 'Error sending emails to all users' });
+    }
+};
+
+
+exports.Unblacklist= async (req, res) => {
+    const { country } = req.body; 
+    try {
+      const blacklist = await Blacklist.findOne();
+      if (blacklist && blacklist.countries.includes(country)) {
+        blacklist.countries = blacklist.countries.filter((c) => c !== country);
+        await blacklist.save();
+        res.status(200).json({ message: `Country ${country} removed from blacklist.` });
+      } else {
+        res.status(400).json({ message: `Country ${country} is not blacklisted.` });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Error removing country from blacklist', error });
+    }
+  };
+
+  exports.blacklist=async (req, res) => {
+    try {
+      const blacklist = await Blacklist.findOne();
+      res.status(200).json({ countries: blacklist ? blacklist.countries : [] });
+    } catch (error) {
+      res.status(500).json({ message: 'Error retrieving blacklist', error });
+    }
+  };

@@ -17,11 +17,9 @@ const connectToDatabase = async () => {
         console.log('Connected to MongoDB');
     } catch (error) {
         console.error('Failed to connect to MongoDB:', error);
-        process.exit(1); // Exit the process with failure
+        process.exit(1); 
     }
 };
-
-// Listen for connection events
 mongoose.connection.on('connected', () => {
     console.log('MongoDB connected');
 });
@@ -50,5 +48,5 @@ app.use('/product', require('./routes/productRoutes'));
 app.use('/subService',require('./routes/subservice'));
 
 
-// Start Server
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
