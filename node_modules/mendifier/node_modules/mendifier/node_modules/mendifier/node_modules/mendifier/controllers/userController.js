@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const twilio = require('twilio');
+const multer = require('multer');
+const kyc = require('../models/kyc');
 const number="+14155238886"
 
 const twilioClient = twilio('AC04bd7aae1f82d8a5dc384e24b6ac04de', 'b55bb9e4354dd3e0386c00984f97a202');
@@ -167,3 +169,43 @@ exports.verifyOtp = async (req, res) => {
     }
 };
 
+exports.serviceprovider=async (req,res)=>{
+
+    try{
+        const{userId,about,jobtitleId,email,state,address,coordinate}= req.body;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+            user.about=about;
+            user.jobtitle=jobtitleId;
+            user.email=email;
+            user.state=state;
+            user.address= address;
+            user.geometery=coordinate;
+            await user.save()
+            res.status(200).json({ message: 'User details updated successfully', user });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Error updating user details' });
+        }
+    
+}
+
+
+exports.uploadKYC= async (req,res)=>{
+    try {
+        const {userId,documentType}= req.body
+        const newImage = new kyc({
+           user:userId,
+           documentType:documentType,
+          name: req.file.filename,
+          path: req.file.path,
+        });
+        await newImage.save();
+        res.send('File uploaded and saved to database');
+      } catch (error) {
+        console.log(error)
+        res.status(500).send('Error uploading file', error);
+      }
+}
