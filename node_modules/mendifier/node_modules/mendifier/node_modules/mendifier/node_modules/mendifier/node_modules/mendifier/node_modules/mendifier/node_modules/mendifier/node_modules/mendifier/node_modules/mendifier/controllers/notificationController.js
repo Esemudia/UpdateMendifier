@@ -1,5 +1,7 @@
 const User = require('../models/User');
 const Pusher = require('pusher');
+const Notification = require('../models/notificationModel');
+
 
 const pusher = new Pusher({
     appId: process.env.PUSHER_APP_ID,
@@ -35,3 +37,19 @@ exports.sendNotification = async (req, res) => {
         res.status(500).json({ error: 'Error sending notification' });
     }
 };
+
+exports.getNotifications= async (req, res) => {
+    const { userId } = req.params;
+    try {
+      const user = await Notification.findById({userId}).populate('notifications');
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.status(200).json(user.notifications);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching notifications' });
+    }
+  };
+
+

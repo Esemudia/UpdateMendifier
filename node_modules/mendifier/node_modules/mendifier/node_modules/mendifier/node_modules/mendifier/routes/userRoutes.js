@@ -35,5 +35,15 @@ router.post('/verify-otp', userController.verifyOtp);
 router.post('/getblacklist',blacklist);
 router.post('/serviceprovider',userController.serviceprovider)
 router.post('/uploadkyc',upload.single('image'),userController.uploadKYC)
+router.post('/uploadprofilePic',upload.single('image'),userController.uploadpics)
+router.post('/followVendor', userController.followVendor);
+router.post('/requestCollaboration', userController.requestCollaboration);
+router.post('/acceptCollab', userController.acceptCollaboration);
+router.get('/:vendorId', userController.getCustomers);
+router.post('/add', userController.addCustomer);
+router.patch('/status', userController.updateCustomerStatus);
+router.delete('/remove', userController.removeCustomer);
+router.post('/review', userController.addReview);
+router.get('/getvendorInsameline', userController.getVendors);
 
 module.exports = router;

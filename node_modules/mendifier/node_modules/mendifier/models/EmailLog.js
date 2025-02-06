@@ -6,6 +6,7 @@ const emailLogSchema = new mongoose.Schema({
     body: { type: String, required: true },
     sentAt: { type: Date, default: Date.now },
     status: { type: String, enum: ['success', 'failure'], default: 'success' },
+    ReadStatus:{type:String,enum:['Read,Unread']},
     error: String
 });
 
